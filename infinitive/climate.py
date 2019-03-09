@@ -29,9 +29,9 @@ and the high temp is 72F the low temp can be no warmer than 68F.
 """
 ATTR_STAGE = 'stage'
 ATTR_BLOWER_RPM = 'blower_rpm'
-ATTR_AIRFLOW_CFM = 'arflow_cfm'
+ATTR_AIRFLOW_CFM = 'airflow_cfm'
 ATTR_FAN_LIST = ['auto', 'low', 'med', 'high']
-ATTR_OPERATION_LIST = ['auto', 'cool', 'heat']
+ATTR_OPERATION_LIST = ['auto', 'cool', 'heat', 'off']
 """
 The override duration refers to a deviation from the current schedule.
 The HVAC unit has a set schedule that it abides by.  Any manual change
@@ -171,7 +171,7 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def operation_list(self):
         """Return operation mode options."""
-        # _LOGGER.debug("ATTR_FAN_LIST: " + str(ATTR_OPERATION_LIST))
+        # _LOGGER.debug("ATTR_OPERATION_LIST: " + str(ATTR_OPERATION_LIST))
         return ATTR_OPERATION_LIST
 
     @property
