@@ -2,8 +2,8 @@ import voluptuous as vol
 import logging
 
 from homeassistant.const import CONF_FILENAME, CONF_HOST, CONF_PORT, \
-from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA, \
     TEMP_CELSIUS, TEMP_FAHRENHEIT, TEMPERATURE, ATTR_FRIENDLY_NAME
+from . import ClimateDevice, PLATFORM_SCHEMA, \
     STATE_AUTO, STATE_COOL, STATE_HEAT, ATTR_CURRENT_TEMPERATURE, \
     ATTR_CURRENT_HUMIDITY, ATTR_HOLD_MODE, ATTR_FAN_MODE, ATTR_FAN_LIST, \
     ATTR_OPERATION_MODE, ATTR_TEMPERATURE, ATTR_TARGET_TEMP_HIGH, \
