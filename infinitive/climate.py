@@ -42,6 +42,12 @@ a physical thermostat.
 The default override time is 120 minutes.
 """
 ATTR_OVERRIDE_DURATION = 'override_duration'
+ATTR_OUTDOOR_TEMP = 'outdoor_temp'
+ATTR_AUX_HEAT = 'aux_heat'
+ATTR_HEATPUMP_COIL_TEMP = 'heatpump_coil_temp'
+ATTR_HEATPUMP_OUTSIDE_TEMP = 'heatpump_outside_temp'
+ATTR_HEATPUMP_STAGE = 'heatpump_stage'
+ATTR_TARGET_HUMIDITY = 'target_humidity'
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
@@ -86,6 +92,7 @@ class InfinitiveDevice(ClimateDevice):
         self._target_temperature = None
         self._target_temperature_high = None
         self._target_temperature_low = None
+        self._target_humidity = None
         self._current_temperature = None
         self._current_humidity = None
         self._blower_rpm = None
@@ -96,6 +103,11 @@ class InfinitiveDevice(ClimateDevice):
         self._is_on = None
         self._hold_mode = None
         self._airflow_cfm = None
+        self._outdoor_temp = None
+        self._aux_heat = None
+        self._heatpump_coil_temp = None
+        self._heatpump_outside_temp = None
+        self._heatpump_stage = None
         self.update()
 
     @property
@@ -185,10 +197,16 @@ class InfinitiveDevice(ClimateDevice):
         """Return the state attributes."""
         return {
             ATTR_CURRENT_HUMIDITY: self._current_humidity,
+            ATTR_TARGET_HUMIDITY: self._target_humidity,
             ATTR_BLOWER_RPM: self._blower_rpm,
             ATTR_STAGE: self._stage,
             ATTR_OVERRIDE_DURATION: self._override_duration,
-            ATTR_AIRFLOW_CFM: self._airflow_cfm
+            ATTR_AIRFLOW_CFM: self._airflow_cfm,
+            ATTR_OUTDOOR_TEMP: self._outdoor_temp,
+            ATTR_AUX_HEAT: self._aux_heat,
+            ATTR_HEATPUMP_COIL_TEMP: self._heatpump_coil_temp,
+            ATTR_HEATPUMP_OUTSIDE_TEMP: self._heatpump_outside_temp,
+            ATTR_HEATPUMP_STAGE: self._heatpump_stage
         }
 
     def update(self):
@@ -202,6 +220,7 @@ class InfinitiveDevice(ClimateDevice):
             self._target_temperature = self._target_temperature_high
         elif self._operation_mode == 'heat':
             self._target_temperature = self._target_temperature_low
+        self._target_humidity = self._status['targetHumidity']
         self._current_temperature = self._status['currentTemp']
         self._current_humidity = self._status['currentHumidity']
         self._blower_rpm = self._status['blowerRPM']
@@ -210,6 +229,11 @@ class InfinitiveDevice(ClimateDevice):
         self._override_duration = self._status['holdDurationMins']
         self._hold_mode = self._status['hold']
         self._airflow_cfm = self._status['airFlowCFM']
+        self._outdoor_temp = self._status['outdoorTemp']
+        self._aux_heat = self._status['auxHeat']
+        self._heatpump_coil_temp = self._status['heatpump_coilTemp']
+        self._heatpump_outside_temp = self._status['heatpump_outsideTemp']
+        self._heatpump_stage = self._status['heatpump_stage']
         # _LOGGER.debug(self._status)
 
     def _set_temperature_high(self, cool_setpoint):
