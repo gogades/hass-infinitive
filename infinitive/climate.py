@@ -2,8 +2,8 @@ import voluptuous as vol
 import logging
 
 from homeassistant.const import CONF_FILENAME, CONF_HOST, CONF_PORT, \
-    TEMP_CELSIUS, TEMP_FAHRENHEIT, TEMPERATURE
 from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA, \
+    TEMP_CELSIUS, TEMP_FAHRENHEIT, TEMPERATURE, ATTR_FRIENDLY_NAME
     STATE_AUTO, STATE_COOL, STATE_HEAT, ATTR_CURRENT_TEMPERATURE, \
     ATTR_CURRENT_HUMIDITY, ATTR_HOLD_MODE, ATTR_FAN_MODE, ATTR_FAN_LIST, \
     ATTR_OPERATION_MODE, ATTR_TEMPERATURE, ATTR_TARGET_TEMP_HIGH, \
@@ -46,6 +46,7 @@ ATTR_OVERRIDE_DURATION = 'override_duration'
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
     vol.Required(CONF_PORT, default=8080): cv.positive_int,
+    vol.Optional(ATTR_FRIENDLY_NAME): cv.string,
     vol.Optional(CONF_TEMP_UNITS, default=TEMP_FAHRENHEIT): cv.string,
     vol.Optional(CONF_TEMP_MIN_SPREAD, default=2): cv.positive_int
 })
@@ -58,6 +59,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     host = config.get(CONF_HOST)
     port = config.get(CONF_PORT)
+    name = config.get(ATTR_FRIENDLY_NAME)
     temp_units = config.get(CONF_TEMP_UNITS)
     temp_min_spread = config.get(CONF_TEMP_MIN_SPREAD)
 
@@ -67,17 +69,17 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         temp_units)
 
     _LOGGER.debug("Adding Infinitive device")
-    add_entities([InfinitiveDevice(inf_device, temp_min_spread)])
+    add_entities([InfinitiveDevice(inf_device, name, temp_min_spread)])
 
 
 class InfinitiveDevice(ClimateDevice):
     """Representation of an Infinitive Device."""
 
-    def __init__(self, inf_device, temp_min_spread):
+    def __init__(self, inf_device, name, temp_min_spread):
         """Initialize Infinitive device instance."""
         self._inf_device = inf_device
         self._status = self._inf_device.get_status()
-        self._name = "Infinitive Thermostat"
+        self._name = name
         self._support_flags = SUPPORT_FLAGS
         self._unit_of_measurement = TEMP_FAHRENHEIT
         self._temp_min_spread = temp_min_spread
