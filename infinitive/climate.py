@@ -85,7 +85,7 @@ class InfinitiveDevice(ClimateDevice):
         """Initialize Infinitive device instance."""
         self._inf_device = inf_device
         self._status = self._inf_device.get_status()
-        self._name = name
+        self._name = name or "Infinitive Thermostat"
         self._support_flags = SUPPORT_FLAGS
         self._unit_of_measurement = TEMP_FAHRENHEIT
         self._temp_min_spread = temp_min_spread
