@@ -1,19 +1,27 @@
+
+"""
+Infinitive support for Home Assistant.
+
+This component utilizes the Infinitive APIs offered for the
+Carrier/Bryant HVAC units that run the Carrier Infinity protocol.
+
+Infinitive Project - https://github.com/Will1604/infinitive
+HA Infinitive Component - https://github.com/mww012/ha_customcomponents
+"""
 import voluptuous as vol
 import logging
 
+import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_FILENAME, CONF_HOST, CONF_PORT, \
-    TEMP_CELSIUS, TEMP_FAHRENHEIT, TEMPERATURE, ATTR_FRIENDLY_NAME
-from . import ClimateDevice, PLATFORM_SCHEMA, \
-    STATE_AUTO, STATE_COOL, STATE_HEAT, ATTR_CURRENT_TEMPERATURE, \
+    TEMP_CELSIUS, TEMP_FAHRENHEIT, ATTR_FRIENDLY_NAME
+from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA, \
+    ATTR_CURRENT_TEMPERATURE, \
     ATTR_CURRENT_HUMIDITY, ATTR_HOLD_MODE, ATTR_FAN_MODE, ATTR_FAN_LIST, \
     ATTR_OPERATION_MODE, ATTR_TEMPERATURE, ATTR_TARGET_TEMP_HIGH, \
-    ATTR_TARGET_TEMP_LOW, SUPPORT_TARGET_TEMPERATURE, \
+    ATTR_TARGET_TEMP_LOW, \
     SUPPORT_TARGET_TEMPERATURE_HIGH, SUPPORT_TARGET_TEMPERATURE_LOW, \
     SUPPORT_FAN_MODE, SUPPORT_OPERATION_MODE, ATTR_OPERATION_LIST, \
     ATTR_HOLD_MODE, SUPPORT_HOLD_MODE
-import homeassistant.helpers.config_validation as cv
-
-REQUIREMENTS = ['pyinfinitive']
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "infinitive"
@@ -52,7 +60,7 @@ ATTR_TARGET_HUMIDITY = 'target_humidity'
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
     vol.Required(CONF_PORT, default=8080): cv.positive_int,
-    vol.Optional(ATTR_FRIENDLY_NAME): cv.string,
+    vol.Optional(ATTR_FRIENDLY_NAME, default='Infinitive'): cv.string,
     vol.Optional(CONF_TEMP_UNITS, default=TEMP_FAHRENHEIT): cv.string,
     vol.Optional(CONF_TEMP_MIN_SPREAD, default=2): cv.positive_int
 })
@@ -63,11 +71,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     _LOGGER.debug("importing pyinfinitive")
     import pyinfinitive
 
-    host = config.get(CONF_HOST)
-    port = config.get(CONF_PORT)
-    name = config.get(ATTR_FRIENDLY_NAME)
-    temp_units = config.get(CONF_TEMP_UNITS)
-    temp_min_spread = config.get(CONF_TEMP_MIN_SPREAD)
+    host = config[CONF_HOST]
+    port = config[CONF_PORT]
+    name = config[ATTR_FRIENDLY_NAME]
+    temp_units = config[CONF_TEMP_UNITS]
+    temp_min_spread = config[CONF_TEMP_MIN_SPREAD]
 
     inf_device = pyinfinitive.infinitive_device(
         host,
@@ -113,14 +121,17 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def supported_features(self):
         """Return list of supported features."""
-        # _LOGGER.debug("Support Flags: " + str(SUPPORT_FLAGS))
-        if self._operation_mode == 'cool' or self._operation_mode == 'heat':
-            self._support_flags = self._support_flags | \
-                SUPPORT_TARGET_TEMPERATURE
-        else:
-            self._support_flags = self._support_flags | \
-                SUPPORT_TARGET_TEMPERATURE_HIGH | \
-                SUPPORT_TARGET_TEMPERATURE_LOW
+        _LOGGER.debug("Support Flags: " + str(SUPPORT_FLAGS))
+        self._support_flags = self._support_flags | \
+            SUPPORT_TARGET_TEMPERATURE_HIGH | \
+            SUPPORT_TARGET_TEMPERATURE_LOW
+        # if self._operation_mode == 'cool' or self._operation_mode == 'heat':
+        #     self._support_flags = self._support_flags | \
+        #         SUPPORT_TARGET_TEMPERATURE
+        # else:
+        #     self._support_flags = self._support_flags | \
+        #         SUPPORT_TARGET_TEMPERATURE_HIGH | \
+        #         SUPPORT_TARGET_TEMPERATURE_LOW
         return self._support_flags
 
     @property
