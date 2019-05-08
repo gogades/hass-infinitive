@@ -262,28 +262,15 @@ class InfinitiveDevice(ClimateDevice):
         _LOGGER.debug("TempMinSpread: " + str(self._temp_min_spread))
         _LOGGER.debug("Setting new target temperature: " +
                       str(kwargs.get(ATTR_TARGET_TEMP_HIGH)) + ", " +
-                      str(kwargs.get(ATTR_TARGET_TEMP_LOW)) + ", " +
-                      str(kwargs.get(ATTR_TEMPERATURE))
+                      str(kwargs.get(ATTR_TARGET_TEMP_LOW))
                       )
         temperature_high = kwargs.get(ATTR_TARGET_TEMP_HIGH)
         temperature_low = kwargs.get(ATTR_TARGET_TEMP_LOW)
-        temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature_high is not None and temperature_low is not None:
-            if self._operation_mode == 'auto':
-                if temperature_high - temperature_low < self._temp_min_spread:
-                    temperature_low = temperature_high - self._temp_min_spread
-                self._set_temperature_high(temperature_high)
-                self._set_temperature_low(temperature_low)
-        elif temperature is not None:
-            if self._operation_mode == 'cool':
-                self._set_temperature_high(temperature)
-            elif self._operation_mode == 'heat':
-                self._set_temperature_low(temperature)
-        _LOGGER.debug("Setting new target temperature: " +
-                      str(kwargs.get(ATTR_TARGET_TEMP_HIGH)) + ", " +
-                      str(kwargs.get(ATTR_TARGET_TEMP_LOW)) + ", " +
-                      str(kwargs.get(ATTR_TEMPERATURE))
-                      )
+            if temperature_high - temperature_low < self._temp_min_spread:
+                temperature_low = temperature_high - self._temp_min_spread
+            self._set_temperature_high(temperature_high)
+            self._set_temperature_low(temperature_low)
 
     def set_fan_mode(self, fan_mode):
         """Set new fan mode."""
