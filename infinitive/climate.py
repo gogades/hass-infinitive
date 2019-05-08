@@ -125,13 +125,6 @@ class InfinitiveDevice(ClimateDevice):
         self._support_flags = self._support_flags | \
             SUPPORT_TARGET_TEMPERATURE_HIGH | \
             SUPPORT_TARGET_TEMPERATURE_LOW
-        # if self._operation_mode == 'cool' or self._operation_mode == 'heat':
-        #     self._support_flags = self._support_flags | \
-        #         SUPPORT_TARGET_TEMPERATURE
-        # else:
-        #     self._support_flags = self._support_flags | \
-        #         SUPPORT_TARGET_TEMPERATURE_HIGH | \
-        #         SUPPORT_TARGET_TEMPERATURE_LOW
         return self._support_flags
 
     @property
@@ -159,12 +152,12 @@ class InfinitiveDevice(ClimateDevice):
         #               str(self._target_temperature_low))
         return self._target_temperature_low
 
-    @property
-    def target_temperature(self):
-        """Return the target temp based on operation mode."""
-        _LOGGER.debug("Target Temp: " +
-                      str(self._target_temperature))
-        return self._target_temperature
+    # @property
+    # def target_temperature(self):
+    #     """Return the target temp based on operation mode."""
+    #     _LOGGER.debug("Target Temp: " +
+    #                   str(self._target_temperature))
+    #     return self._target_temperature
 
     @property
     def temperature_unit(self):
@@ -227,10 +220,10 @@ class InfinitiveDevice(ClimateDevice):
         self._operation_mode = self._status['mode']
         self._target_temperature_high = self._status['coolSetpoint']
         self._target_temperature_low = self._status['heatSetpoint']
-        if self._operation_mode == 'cool':
-            self._target_temperature = self._target_temperature_high
-        elif self._operation_mode == 'heat':
-            self._target_temperature = self._target_temperature_low
+        # if self._operation_mode == 'cool':
+        #     self._target_temperature = self._target_temperature_high
+        # elif self._operation_mode == 'heat':
+        #     self._target_temperature = self._target_temperature_low
         self._target_humidity = self._status['targetHumidity']
         self._current_temperature = self._status['currentTemp']
         self._current_humidity = self._status['currentHumidity']
