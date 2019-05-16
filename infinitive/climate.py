@@ -15,13 +15,15 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_FILENAME, CONF_HOST, CONF_PORT, \
     TEMP_CELSIUS, TEMP_FAHRENHEIT, ATTR_FRIENDLY_NAME
 from homeassistant.components.climate import ClimateDevice, PLATFORM_SCHEMA, \
-    ATTR_CURRENT_TEMPERATURE, \
+    ATTR_TEMPERATURE
+
+from homeassistant.components.climate.const import ATTR_CURRENT_TEMPERATURE, \
     ATTR_CURRENT_HUMIDITY, ATTR_HOLD_MODE, ATTR_FAN_MODE, ATTR_FAN_LIST, \
-    ATTR_OPERATION_MODE, ATTR_TEMPERATURE, ATTR_TARGET_TEMP_HIGH, \
+    ATTR_OPERATION_MODE, ATTR_TARGET_TEMP_HIGH, \
     ATTR_TARGET_TEMP_LOW, \
     SUPPORT_TARGET_TEMPERATURE_HIGH, SUPPORT_TARGET_TEMPERATURE_LOW, \
     SUPPORT_FAN_MODE, SUPPORT_OPERATION_MODE, ATTR_OPERATION_LIST, \
-    ATTR_HOLD_MODE, SUPPORT_HOLD_MODE
+    ATTR_HOLD_MODE, SUPPORT_HOLD_MODE, SUPPORT_TARGET_TEMPERATURE
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "infinitive"
@@ -82,7 +84,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         port,
         temp_units)
 
-    _LOGGER.debug("Adding Infinitive device")
+    _LOGGER.info("Adding Infinitive device")
     add_entities([InfinitiveDevice(inf_device, name, temp_min_spread)])
 
 
@@ -99,6 +101,7 @@ class InfinitiveDevice(ClimateDevice):
         self._temp_min_spread = temp_min_spread
         self._target_temperature_high = None
         self._target_temperature_low = None
+        self._target_temperature = None
         self._target_humidity = None
         self._current_temperature = None
         self._current_humidity = None
@@ -121,9 +124,13 @@ class InfinitiveDevice(ClimateDevice):
     def supported_features(self):
         """Return list of supported features."""
         _LOGGER.debug("Support Flags: " + str(SUPPORT_FLAGS))
-        self._support_flags = self._support_flags | \
-            SUPPORT_TARGET_TEMPERATURE_HIGH | \
-            SUPPORT_TARGET_TEMPERATURE_LOW
+        if self._operation_mode == 'cool' or self._operation_mode == 'heat':
+            self._support_flags = self._support_flags | \
+                SUPPORT_TARGET_TEMPERATURE
+        else:
+            self._support_flags = self._support_flags | \
+                SUPPORT_TARGET_TEMPERATURE_HIGH | \
+                SUPPORT_TARGET_TEMPERATURE_LOW
         return self._support_flags
 
     @property
@@ -134,28 +141,35 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def current_temperature(self):
         """Return the current temperature."""
-        # _LOGGER.debug("Current Temp: " + str(self._current_temperature))
+        _LOGGER.info("Current Temp: " + str(self._current_temperature))
         return self._current_temperature
 
     @property
     def target_temperature_high(self):
         """Return the target high temp(cool setpoint)."""
-        # _LOGGER.debug("Target High Temp: " +
-        #               str(self._target_temperature_high))
+        _LOGGER.debug("Target High Temp: " +
+                      str(self._target_temperature_high))
         return self._target_temperature_high
 
     @property
     def target_temperature_low(self):
         """Return the target low temp(heat setpoint)."""
-        # _LOGGER.debug("Target Low Temp: " +
-        #               str(self._target_temperature_low))
+        _LOGGER.debug("Target Low Temp: " +
+                      str(self._target_temperature_low))
         return self._target_temperature_low
+
+    @property
+    def target_temperature(self):
+        """Return the target low temp(heat setpoint)."""
+        _LOGGER.debug("Target Temp: " +
+                      str(self._target_temperature))
+        return self._target_temperature
 
     @property
     def temperature_unit(self):
         """Return the unit of measurement."""
         # _LOGGER.debug("Unit of measurement:" +
-        # str(self._unit_of_measurement))
+        #   str(self._unit_of_measurement))
         return self._unit_of_measurement
 
     @property
@@ -207,11 +221,15 @@ class InfinitiveDevice(ClimateDevice):
 
     def update(self):
         """Update current status from infinitive device."""
-        _LOGGER.debug("Updating Infinitive status")
+        _LOGGER.info("Updating Infinitive status")
         self._status = self._inf_device.get_status()
         self._operation_mode = self._status['mode']
         self._target_temperature_high = self._status['coolSetpoint']
         self._target_temperature_low = self._status['heatSetpoint']
+        if self._operation_mode == 'cool':
+            self._target_temperature = self._target_temperature_high
+        elif self._operation_mode == 'heat':
+            self._target_temperature = self._target_temperature_low
         self._target_humidity = self._status['targetHumidity']
         self._current_temperature = self._status['currentTemp']
         self._current_humidity = self._status['currentHumidity']
@@ -226,7 +244,7 @@ class InfinitiveDevice(ClimateDevice):
         self._heatpump_coil_temp = self._status['heatpump_coilTemp']
         self._heatpump_outside_temp = self._status['heatpump_outsideTemp']
         self._heatpump_stage = self._status['heatpump_stage']
-        # _LOGGER.debug(self._status)
+        _LOGGER.debug(self._status)
 
     def _set_temperature_high(self, cool_setpoint):
         """Set new coolpoint target temperature."""
@@ -241,17 +259,23 @@ class InfinitiveDevice(ClimateDevice):
     def set_temperature(self, **kwargs):
         """Set new target temperature."""
         _LOGGER.debug("TempMinSpread: " + str(self._temp_min_spread))
-        _LOGGER.debug("Setting new target temperature: " +
-                      str(kwargs.get(ATTR_TARGET_TEMP_HIGH)) + ", " +
-                      str(kwargs.get(ATTR_TARGET_TEMP_LOW))
-                      )
-        temperature_high = kwargs.get(ATTR_TARGET_TEMP_HIGH)
-        temperature_low = kwargs.get(ATTR_TARGET_TEMP_LOW)
-        if temperature_high is not None and temperature_low is not None:
+        if self._operation_mode == 'auto':
+            temperature_high = kwargs.get(ATTR_TARGET_TEMP_HIGH)
+            temperature_low = kwargs.get(ATTR_TARGET_TEMP_LOW)
             if temperature_high - temperature_low < self._temp_min_spread:
                 temperature_low = temperature_high - self._temp_min_spread
             self._set_temperature_high(temperature_high)
             self._set_temperature_low(temperature_low)
+            _LOGGER.info("Setting new target temperature: " +
+                         str(temperature_high) + " " + str(temperature_low))
+        else:
+            temperature = kwargs.get(ATTR_TEMPERATURE)
+            if self._operation_mode == 'cool':
+                self._set_temperature_high(temperature)
+            elif self._operation_mode == 'heat':
+                self._set_temperature_low(temperature)
+            _LOGGER.info("Setting new target temperature: " +
+                         str(temperature))
 
     def set_fan_mode(self, fan_mode):
         """Set new fan mode."""
