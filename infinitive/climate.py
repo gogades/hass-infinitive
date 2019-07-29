@@ -44,7 +44,7 @@ ATTR_FAN_MODES = [FAN_AUTO, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
 FAN_MODE_MAP = {
     'auto': FAN_AUTO,
     'low': FAN_LOW,
-    'medium': FAN_MEDIUM,
+    'med': FAN_MEDIUM,
     'high': FAN_HIGH
 }
 # ATTR_OPERATION_LIST = ['auto', 'cool', 'heat', 'off']
