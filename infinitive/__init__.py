@@ -1,1 +1,1 @@
-"""infintive component for Home Assistant"""
+"""Infinitive component for Home Assistant"""
