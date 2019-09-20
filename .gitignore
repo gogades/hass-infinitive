@@ -103,5 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# VSCode Exclusions
+# vscode
+launch.json
+settings.json
 .vscode/

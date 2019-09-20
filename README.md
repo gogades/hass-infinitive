@@ -1,2 +1,2 @@
 # ha_customcomponents
-Custom components for Home Assistant
+Custom components for Home Assistant.
