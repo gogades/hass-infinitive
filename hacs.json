@@ -1,0 +1,6 @@
+{
+  "name": "Infinitive",
+  "country": "EN",
+  "domains": ["climate"],
+  "homeassistant": "0.96.0"
+}
