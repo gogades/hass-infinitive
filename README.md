@@ -60,9 +60,9 @@ systemctl start infinitive
 14. Add this to your configuration.yaml and restart:
 ```
 climate:
-- platform: infinitive
-host: [Raspberry Pi IP]
-port: 8080
+  - platform: infinitive
+  host: [Raspberry Pi IP]
+  port: 8080
 ```
 15. Restart Home Assistant
 16. Your HVAC unit should show up in Home Assistant with entity_id climate.infinitive_thermostat
