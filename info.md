@@ -1,4 +1,7 @@
 # Infinitive Integration for Home Assistant
+
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+
 **THIS README IS A WIP AND IS CURRENTLY MISSING A FEW DETAILS**
 
 Hey!  This integration started when I purchased a new home. It's a Bryant unit.  Sure enough, I bought a house with one of the 5% of units that isn't compatible with Nest thermostats.  I started my research and found the Infinitive project.  I had wanted to dig deeper into python so an HA integration seemed like the perfect opportunity.
@@ -12,7 +15,7 @@ Hey!  This integration started when I purchased a new home. It's a Bryant unit. 
 3. Buy some wire - I think 14/2 romex wire is what I used.  You should be able to pick it up at your local hardware store.  You need enough to reach from your A/C unit system board to the location of your RS-485 adapter.
 4. Flash the latest Lite version of Raspbian to your SD card - Try [Belana Etcher](https://www.balena.io/etcher/) if you need an application that can write the Raspbian image to the SD card.
 5. Setup Raspbian install to have a fixed IP on my network
-6. Once the Pi is on your network, running the folowing: 
+6. Once the Pi is on your network, running the folowing:
 ```apt-get install git
 apt-get install golang-go
 export GOPATH = /root/go
