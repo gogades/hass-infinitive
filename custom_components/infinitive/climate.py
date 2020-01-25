@@ -255,7 +255,10 @@ class InfinitiveDevice(ClimateDevice):
         """Update current status from infinitive device."""
         _LOGGER.info("Updating Infinitive status")
         self._status = self._inf_device.get_status()
-        self._hvac_mode = self._status['mode']
+        try:
+            self._hvac_mode = self._status['mode']
+        except Exception:
+            pass
         self._target_temperature_high = self._status['coolSetpoint']
         self._target_temperature_low = self._status['heatSetpoint']
         if self._hvac_mode == 'cool':
