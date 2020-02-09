@@ -4,7 +4,7 @@
 
 **THIS README IS A WIP AND IS CURRENTLY MISSING A FEW DETAILS**
 
-Hey!  This integration started when I purchased a new home. It's a Bryant unit.  Sure enough, I bought a house with one of the 5% of units that isn't compatible with Nest thermostats.  I started my research and found the Infinitive project.  I had wanted to dig deeper into python so an HA integration seemed like the perfect opportunity.
+Hey!  This integration started when I purchased a new home. It's hvac is a Bryant unit.  Sure enough, I bought a house with one of the 5% of units that isn't compatible with Nest thermostats.  I started my research and found the Infinitive project.  I had wanted to dig deeper into python so an HA integration seemed like the perfect opportunity.
 
 ## Installation Steps:
 
