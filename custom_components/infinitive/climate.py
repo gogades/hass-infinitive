@@ -285,7 +285,7 @@ class InfinitiveDevice(ClimateDevice):
             else:
                 self._hvac_action = CURRENT_HVAC_IDLE
         except Exception as e:
-            _LOGGER.debug(f'Status update error: {e}')
+            _LOGGER.debug(f"Status update error: {e}")
 
     def _set_temperature_high(self, cool_setpoint):
         """Set new coolpoint target temperature."""
@@ -308,7 +308,7 @@ class InfinitiveDevice(ClimateDevice):
             self._set_temperature_high(temperature_high)
             self._set_temperature_low(temperature_low)
             _LOGGER.debug("Setting new target temperature: " +
-                         str(temperature_high) + " " + str(temperature_low))
+                          str(temperature_high) + " " + str(temperature_low))
         else:
             temperature = kwargs.get(ATTR_TEMPERATURE)
             if self._hvac_mode == 'cool':
@@ -316,7 +316,7 @@ class InfinitiveDevice(ClimateDevice):
             elif self._hvac_mode == 'heat':
                 self._set_temperature_low(temperature)
             _LOGGER.debug("Setting new target temperature: " +
-                         str(temperature))
+                          str(temperature))
 
     def set_fan_mode(self, fan_mode):
         """Set new fan mode."""
