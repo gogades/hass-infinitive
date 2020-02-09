@@ -91,7 +91,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         port,
         temp_units)
 
-    _LOGGER.info("Adding Infinitive device")
+    _LOGGER.debug("Adding Infinitive device")
     add_entities([InfinitiveDevice(inf_device, name, temp_min_spread)])
 
 
@@ -150,7 +150,7 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def current_temperature(self):
         """Return the current temperature."""
-        _LOGGER.info("Current Temp: " + str(self._current_temperature))
+        _LOGGER.debug("Current Temp: " + str(self._current_temperature))
         return self._current_temperature
 
     @property
@@ -253,40 +253,39 @@ class InfinitiveDevice(ClimateDevice):
 
     def update(self):
         """Update current status from infinitive device."""
-        _LOGGER.info("Updating Infinitive status")
+        _LOGGER.debug("Updating Infinitive status")
         self._status = self._inf_device.get_status()
         try:
             self._hvac_mode = self._status['mode']
-        except Exception:
-            pass
-        self._target_temperature_high = self._status['coolSetpoint']
-        self._target_temperature_low = self._status['heatSetpoint']
-        if self._hvac_mode == 'cool':
-            self._target_temperature = self._target_temperature_high
-        elif self._hvac_mode == 'heat':
-            self._target_temperature = self._target_temperature_low
-        self._target_humidity = self._status['targetHumidity']
-        self._current_temperature = self._status['currentTemp']
-        self._current_humidity = self._status['currentHumidity']
-        self._blower_rpm = self._status['blowerRPM']
-        self._fan_mode = FAN_MODE_MAP[self._status['fanMode']]
-        if self._status['hold'] is True:
-            self._preset_mode == PRESET_HOLD
-        self._stage = self._status['stage']
-        self._override_duration = self._status['holdDurationMins']
-        self._airflow_cfm = self._status['airFlowCFM']
-        self._outdoor_temp = self._status['outdoorTemp']
-        self._aux_heat = self._status['auxHeat']
-        self._heatpump_coil_temp = self._status['heatpump_coilTemp']
-        self._heatpump_outside_temp = self._status['heatpump_outsideTemp']
-        self._heatpump_stage = self._status['heatpump_stage']
-        if self._hvac_mode == 'cool' and self._stage > 0:
-            self._hvac_action = CURRENT_HVAC_COOL
-        elif self._hvac_mode == 'heat' and self._stage > 0:
-            self._hvac_action = CURRENT_HVAC_HEAT
-        else:
-            self._hvac_action = CURRENT_HVAC_IDLE
-        _LOGGER.debug(self._status)
+            self._target_temperature_high = self._status['coolSetpoint']
+            self._target_temperature_low = self._status['heatSetpoint']
+            if self._hvac_mode == 'cool':
+                self._target_temperature = self._target_temperature_high
+            elif self._hvac_mode == 'heat':
+                self._target_temperature = self._target_temperature_low
+            self._target_humidity = self._status['targetHumidity']
+            self._current_temperature = self._status['currentTemp']
+            self._current_humidity = self._status['currentHumidity']
+            self._blower_rpm = self._status['blowerRPM']
+            self._fan_mode = FAN_MODE_MAP[self._status['fanMode']]
+            if self._status['hold'] is True:
+                self._preset_mode == PRESET_HOLD
+            self._stage = self._status['stage']
+            self._override_duration = self._status['holdDurationMins']
+            self._airflow_cfm = self._status['airFlowCFM']
+            self._outdoor_temp = self._status['outdoorTemp']
+            self._aux_heat = self._status['auxHeat']
+            self._heatpump_coil_temp = self._status['heatpump_coilTemp']
+            self._heatpump_outside_temp = self._status['heatpump_outsideTemp']
+            self._heatpump_stage = self._status['heatpump_stage']
+            if self._hvac_mode == 'cool' and self._stage > 0:
+                self._hvac_action = CURRENT_HVAC_COOL
+            elif self._hvac_mode == 'heat' and self._stage > 0:
+                self._hvac_action = CURRENT_HVAC_HEAT
+            else:
+                self._hvac_action = CURRENT_HVAC_IDLE
+        except Exception as e:
+            _LOGGER.debug(f'Status update error: {e}')
 
     def _set_temperature_high(self, cool_setpoint):
         """Set new coolpoint target temperature."""
@@ -308,7 +307,7 @@ class InfinitiveDevice(ClimateDevice):
                 temperature_low = temperature_high - self._temp_min_spread
             self._set_temperature_high(temperature_high)
             self._set_temperature_low(temperature_low)
-            _LOGGER.info("Setting new target temperature: " +
+            _LOGGER.debug("Setting new target temperature: " +
                          str(temperature_high) + " " + str(temperature_low))
         else:
             temperature = kwargs.get(ATTR_TEMPERATURE)
@@ -316,7 +315,7 @@ class InfinitiveDevice(ClimateDevice):
                 self._set_temperature_high(temperature)
             elif self._hvac_mode == 'heat':
                 self._set_temperature_low(temperature)
-            _LOGGER.info("Setting new target temperature: " +
+            _LOGGER.debug("Setting new target temperature: " +
                          str(temperature))
 
     def set_fan_mode(self, fan_mode):
