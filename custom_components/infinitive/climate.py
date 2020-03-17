@@ -323,7 +323,10 @@ class InfinitiveDevice(ClimateDevice):
         _LOGGER.debug("Setting fan mode: " + str(fan_mode))
         if fan_mode is None:
             return
-        self._inf_device.set_fanmode(fan_mode)
+        if fan_mode == FAN_MEDIUM:
+            self._inf_device.set_fanmode('med')
+        else:
+            self._inf_device.set_fanmode(fan_mode)
 
     def set_hvac_mode(self, hvac_mode):
         """Set new operation mode."""
