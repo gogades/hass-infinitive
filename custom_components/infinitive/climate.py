@@ -254,7 +254,9 @@ class InfinitiveDevice(ClimateDevice):
     def update(self):
         """Update current status from infinitive device."""
         _LOGGER.debug("Updating Infinitive status")
-        self._status = self._inf_device.get_status()
+        status = self._inf_device.get_status()
+        if 'mode' in status.keys():
+            self._status = status
         try:
             self._hvac_mode = self._status['mode']
             self._target_temperature_high = self._status['coolSetpoint']
