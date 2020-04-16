@@ -5,5 +5,4 @@
   "requirements": ["pyinfinitive==0.0.5"],
   "dependencies": [],
   "codeowners": ["@mww012"],
-  "render_readme": true
 }
