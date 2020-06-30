@@ -210,7 +210,7 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def preset_modes(self):
         """Return supported preset modes."""
-        _LOGGER.debug("Preset Mode:" + str(self.preset_mode))
+        _LOGGER.debug("Preset Mode: " + str(self.preset_mode))
         return [PRESET_HOME, PRESET_HOLD]
 
     @property
