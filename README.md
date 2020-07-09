@@ -15,11 +15,13 @@ Hey!  This integration started when I purchased a new home. It's HVAC is a Bryan
 5. Setup Raspbian install to have a static IP on your network.
 6. Once the Pi is on your network, running the folowing: 
 
-```apt-get install git
-apt-get install golang-go
-export GOPATH = /root/go
-go get github.com/Will1604/infinitive
-go build github.com/Will1604/infinitive
+```
+sudo apt-get install git golang-go
+sudo mkdir /opt/go
+export GOPATH=/opt/go
+cd /opt/go
+sudo go get github.com/Will1604/infinitive
+sudo go build github.com/Will1604/infinitive
 ```
 
 7. Place this file at /etc/systemd/system/infinitive.service:
@@ -35,24 +37,25 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-ExecStart=/root/go/bin/infinitive -httpport=8080 -serial=/dev/ttyUSB0
+ExecStart=/opt/go/infinitive -httpport=8080 -serial=/dev/ttyUSB0
 [Install]
 WantedBy=multi-user.target
 ```
 8. After the infinitive.service file has been created run the following:
 ```
-systemctl enable infinitive
-systemctl start infinitive
+sudo systemctl enable infinitive
+sudo systemctl start infinitive
 ```
-9. Run ```systemctl status infinitive``` to ensure that the service is running.
+9. Run ```sudo systemctl status infinitive``` to ensure that the service is running.
 10. If all went well you should be able to browse to **http://[rasbperry_pi_IP]:8080** and be presented with the Infinitive web interface.
 
 ## PLEASE KILL POWER TO YOUR HVAC UNIT WHILE YOU'RE WORKING ON IT.
 11. Using the thermostat wire, connect one end to the RS-485 adapter as shown in the pictures below.
-- Green wire connects to the A port
-- Yellow wire connect to the B port
-![Pi RS-485 adapter connection](https://raw.githubusercontent.com/mww012/mww012.github.io/master/32cd71b515e2ae1436048976d6f6e33c6790abd7.jpeg)![RS-485 adapter detail](https://raw.githubusercontent.com/mww012/mww012.github.io/master/708F50C1-0CBF-4CE7-87A8-468409863C49.jpeg)
+- Green wire connects to the A port on the HVAC system board and to left T/R port on the serial adapter
+- Yellow wire connects to the B port on the HVAC system board and to Right T/R port on the serial adapter
 ![Carrier/Bryant system board](https://raw.githubusercontent.com/mww012/mww012.github.io/master/E11C5752-1FD6-4E68-A898-A77C1B9C6B9B.jpeg)
+![Pi RS-485 adapter connection](https://raw.githubusercontent.com/mww012/mww012.github.io/master/32cd71b515e2ae1436048976d6f6e33c6790abd7.jpeg)
+![RS-485 adapter detail](https://raw.githubusercontent.com/mww012/mww012.github.io/master/708F50C1-0CBF-4CE7-87A8-468409863C49.jpeg)
 ## POWER CAN BE TURNED BACK ON TO THE HVAC UNIT FOR TESTING
 
 12. At this point you can check the Infinitive web interface and ensure that it's populating with the data.  If it's not please reach out and I'll try to help where I can.
