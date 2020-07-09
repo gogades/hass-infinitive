@@ -95,7 +95,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities([InfinitiveDevice(inf_device, name, temp_min_spread)])
 
 
-class InfinitiveDevice(ClimateDevice):
+class InfinitiveDevice(ClimateEntity):
     """Representation of an Infinitive Device."""
 
     def __init__(self, inf_device, name, temp_min_spread):
