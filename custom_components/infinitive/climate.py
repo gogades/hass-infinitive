@@ -210,8 +210,8 @@ class InfinitiveDevice(ClimateDevice):
     @property
     def preset_modes(self):
         """Return supported preset modes."""
-        _LOGGER.debug("Preset Mode:" + str(self._preset_mode))
-        return self._preset_mode
+        _LOGGER.debug("Preset Mode: " + str(self.preset_mode))
+        return [PRESET_HOME, PRESET_HOLD]
 
     @property
     def device_state_attributes(self):
@@ -272,6 +272,8 @@ class InfinitiveDevice(ClimateDevice):
             self._fan_mode = FAN_MODE_MAP[self._status['fanMode']]
             if self._status['hold'] is True:
                 self._preset_mode == PRESET_HOLD
+            else:
+                self._preset_mode == PRESET_HOME
             self._stage = self._status['stage']
             self._override_duration = self._status['holdDurationMins']
             self._airflow_cfm = self._status['airFlowCFM']
