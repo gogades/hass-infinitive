@@ -4,5 +4,6 @@
   "documentation": "https://github.com/mww012/ha_customcomponents",
   "requirements": ["pyinfinitive==0.0.5"],
   "dependencies": [],
-  "codeowners": ["@mww012"]
+  "codeowners": ["@mww012"],
+  "version": "0.0.5"
 }
