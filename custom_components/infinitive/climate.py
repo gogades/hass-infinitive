@@ -14,10 +14,8 @@ from voluptuous.schema_builder import _iterate_mapping_candidates
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (
-    CONF_FILENAME,
     CONF_HOST,
     CONF_PORT,
-    TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_FRIENDLY_NAME,
 )
@@ -28,12 +26,8 @@ from homeassistant.components.climate import (
 )
 
 from homeassistant.components.climate.const import (
-    ATTR_CURRENT_TEMPERATURE,
     ATTR_CURRENT_HUMIDITY,
-    ATTR_FAN_MODE,
     ATTR_FAN_MODES,
-    ATTR_HVAC_MODE,
-    ATTR_HVAC_MODES,
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
     HVAC_MODES,
@@ -261,11 +255,13 @@ class InfinitiveDevice(ClimateEntity):
             return HVAC_MODES[1]
         elif self._status["mode"] == "auto":
             return HVAC_MODES[3]
+        else:
+            return HVAC_MODES[0]
 
     @property
     def hvac_modes(self):
-        """Return supported HVAC modes (heat, cool, heat_cool)."""
-        return [HVAC_MODES[1], HVAC_MODES[2], HVAC_MODES[3]]
+        """Return supported HVAC modes (off, heat, cool, heat_cool)."""
+        return [HVAC_MODES[0], HVAC_MODES[1], HVAC_MODES[2], HVAC_MODES[3]]
 
     @property
     def hvac_action(self):
