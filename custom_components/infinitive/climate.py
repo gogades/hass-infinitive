@@ -366,7 +366,7 @@ class InfinitiveDevice(ClimateEntity):
 
     def set_preset_mode(self, mode):
         """Set new preset mode."""
-        if mode == "hold":
+        if mode == PRESET_HOLD:
             self._inf_device.set_hold(True)
-        elif mode == "home":
+        elif mode == PRESET_HOME:
             self._inf_device.set_hold(False)
