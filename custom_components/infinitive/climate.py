@@ -185,7 +185,7 @@ class InfinitiveDevice(ClimateEntity):
 
     @property
     def target_temperature(self):
-        """Return the target low temp(heat setpoint)."""
+        """Return the target temp(heat setpoint)."""
         _LOGGER.debug("Target Temp: " + str(self._target_temperature))
         return self._target_temperature
 
