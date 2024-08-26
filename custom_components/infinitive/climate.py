@@ -16,11 +16,13 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (
     CONF_HOST,
     CONF_PORT,
-    TEMP_FAHRENHEIT,
+    UnitOfTemperature,
     ATTR_FRIENDLY_NAME,
 )
 from homeassistant.components.climate import (
     ClimateEntity,
+    ClimateEntityFeature,
+    HVACAction,
     PLATFORM_SCHEMA,
     ATTR_TEMPERATURE,
 )
@@ -36,19 +38,12 @@ from homeassistant.components.climate.const import (
     FAN_LOW,
     FAN_MEDIUM,
     FAN_HIGH,
-    CURRENT_HVAC_COOL,
-    CURRENT_HVAC_HEAT,
-    CURRENT_HVAC_IDLE,
-    SUPPORT_TARGET_TEMPERATURE,
-    SUPPORT_TARGET_TEMPERATURE_RANGE,
-    SUPPORT_FAN_MODE,
-    SUPPORT_PRESET_MODE,
 )
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "infinitive"
-SUPPORT_FLAGS_BASE = SUPPORT_FAN_MODE | SUPPORT_PRESET_MODE
-CONF_TEMP_UNITS = "TempUnits"
+SUPPORT_FLAGS_BASE = ClimateEntityFeature.FAN_MODE | ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
+CONF_TEMP_UNITS = "tempunits"
 CONF_TEMP_MIN_SPREAD = "tempminspread"
 """
 tempminspread (Temperature Minimum Spread) refers to the minimum allowed
@@ -84,7 +79,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=8080): cv.positive_int,
         vol.Optional(ATTR_FRIENDLY_NAME, default="Infinitive"): cv.string,
-        vol.Optional(CONF_TEMP_UNITS, default=TEMP_FAHRENHEIT): cv.string,
+        vol.Optional(CONF_TEMP_UNITS, default="fahrenheit"): cv.string,
         vol.Optional(CONF_TEMP_MIN_SPREAD, default=2): cv.positive_int,
     }
 )
@@ -99,26 +94,29 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     port = config[CONF_PORT]
     name = config[ATTR_FRIENDLY_NAME]
     uniqueid = config[CONF_HOST] + ":" + str(config[CONF_PORT])
-    temp_units = config[CONF_TEMP_UNITS]
+    temp_units = UnitOfTemperature.FAHRENHEIT
+    if config[CONF_TEMP_UNITS].lower() == "celsius":
+        temp_units=UnitOfTemperature.CELSIUS
+
     temp_min_spread = config[CONF_TEMP_MIN_SPREAD]
 
     inf_device = pyinfinitive.infinitive_device(host, port, temp_units)
 
     _LOGGER.debug("Adding Infinitive device")
-    add_entities([InfinitiveDevice(inf_device, name, temp_min_spread, uniqueid)])
+    add_entities([InfinitiveDevice(inf_device, name, temp_min_spread,  temp_units, uniqueid)])
 
 
 class InfinitiveDevice(ClimateEntity):
     """Representation of an Infinitive Device."""
 
-    def __init__(self, inf_device, name, temp_min_spread, uniqueid):
+    def __init__(self, inf_device, name, temp_min_spread, temp_units, uniqueid):
         """Initialize Infinitive device instance."""
         _LOGGER.debug("Initializing infinitive class instance")
         self._inf_device = inf_device
         self._status = self._inf_device.get_status()
         self._name = name or "Infinitive Thermostat"
         self._support_flags = SUPPORT_FLAGS_BASE
-        self._unit_of_measurement = TEMP_FAHRENHEIT
+        self._unit_of_measurement = temp_units
         self._temp_min_spread = temp_min_spread
         self._target_temperature_high = None
         self._target_temperature_low = None
@@ -148,10 +146,10 @@ class InfinitiveDevice(ClimateEntity):
     def supported_features(self):
         """Return list of supported features."""
         if self._hvac_mode == "cool" or self._hvac_mode == "heat":
-            self._support_flags = SUPPORT_FLAGS_BASE | SUPPORT_TARGET_TEMPERATURE
+            self._support_flags = SUPPORT_FLAGS_BASE | ClimateEntityFeature.TARGET_TEMPERATURE
             _LOGGER.debug("Support Flags: " + str(self._support_flags))
         else:
-            self._support_flags = SUPPORT_FLAGS_BASE | SUPPORT_TARGET_TEMPERATURE_RANGE
+            self._support_flags = SUPPORT_FLAGS_BASE | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
             _LOGGER.debug("Support Flags: " + str(self._support_flags))
         return self._support_flags
 
@@ -268,6 +266,11 @@ class InfinitiveDevice(ClimateEntity):
         """Return current HVAC action."""
         return self._hvac_action
 
+    def get_value(self, nm):
+        if nm in self._status:
+            return self._status[nm]
+        return None
+    
     def update(self):
         """Update current status from infinitive device."""
         _LOGGER.debug("Updating Infinitive status")
@@ -275,36 +278,36 @@ class InfinitiveDevice(ClimateEntity):
         if "mode" in status.keys():
             self._status = status
         try:
-            self._hvac_mode = self._status["mode"]
-            self._target_temperature_high = self._status["coolSetpoint"]
-            self._target_temperature_low = self._status["heatSetpoint"]
+            self._hvac_mode = self.get_value("mode")
+            self._target_temperature_high = self.get_value("coolSetpoint")
+            self._target_temperature_low = self.get_value("heatSetpoint")
             if self._hvac_mode == "cool":
                 self._target_temperature = self._target_temperature_high
             elif self._hvac_mode == "heat":
                 self._target_temperature = self._target_temperature_low
-            self._target_humidity = self._status["targetHumidity"]
-            self._current_temperature = self._status["currentTemp"]
-            self._current_humidity = self._status["currentHumidity"]
-            self._blower_rpm = self._status["blowerRPM"]
-            self._fan_mode = FAN_MODE_MAP[self._status["fanMode"]]
+            self._target_humidity = self.get_value("targetHumidity")
+            self._current_temperature = self.get_value("currentTemp")
+            self._current_humidity = self.get_value("currentHumidity")
+            self._blower_rpm = self.get_value("blowerRPM")
+            self._fan_mode = FAN_MODE_MAP[self.get_value("fanMode")]
             if self._status["hold"] is True:
                 self._preset_mode == PRESET_HOLD
             else:
                 self._preset_mode == PRESET_HOME
-            self._stage = self._status["stage"]
-            self._override_duration = self._status["holdDurationMins"]
-            self._airflow_cfm = self._status["airFlowCFM"]
-            self._outdoor_temp = self._status["outdoorTemp"]
-            self._aux_heat = self._status["auxHeat"]
-            self._heatpump_coil_temp = self._status["heatpump_coilTemp"]
-            self._heatpump_outside_temp = self._status["heatpump_outsideTemp"]
-            self._heatpump_stage = self._status["heatpump_stage"]
+            self._stage = self.get_value("stage")
+            self._override_duration = self.get_value("holdDurationMins")
+            self._airflow_cfm = self.get_value("airFlowCFM")
+            self._outdoor_temp = self.get_value("outdoorTemp")
+            self._aux_heat = self.get_value("auxHeat")
+            self._heatpump_coil_temp = self.get_value("heatpump_coilTemp")
+            self._heatpump_outside_temp = self.get_value("heatpump_outsideTemp")
+            self._heatpump_stage = self.get_value("heatpump_stage")
             if self._hvac_mode == "cool" and self._stage > 0:
-                self._hvac_action = CURRENT_HVAC_COOL
+                self._hvac_action = HVACAction.COOLING
             elif self._hvac_mode == "heat" and self._stage > 0:
-                self._hvac_action = CURRENT_HVAC_HEAT
+                self._hvac_action = HVACAction.HEATING
             else:
-                self._hvac_action = CURRENT_HVAC_IDLE
+                self._hvac_action = HVACAction.IDLE
         except Exception as e:
             _LOGGER.debug(f"Status update error: {e}")
 
@@ -359,10 +362,10 @@ class InfinitiveDevice(ClimateEntity):
             return
         elif hvac_mode == HVAC_MODES[3]:
             self._inf_device.set_mode("auto")
-            self._support_flags = SUPPORT_FLAGS_BASE | SUPPORT_TARGET_TEMPERATURE_RANGE
+            self._support_flags = SUPPORT_FLAGS_BASE | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
         else:
             self._inf_device.set_mode(hvac_mode)
-            self._support_flags = SUPPORT_FLAGS_BASE | SUPPORT_TARGET_TEMPERATURE
+            self._support_flags = SUPPORT_FLAGS_BASE | ClimateEntityFeature.TARGET_TEMPERATURE
 
     def set_preset_mode(self, mode):
         """Set new preset mode."""
