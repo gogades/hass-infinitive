@@ -106,12 +106,12 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
     <summary>HACS Installation (Recommended)</summary>
 
     1. Install HACS in HA.  [Here](https://hacs.xyz/docs/setup/download) are instructions if you need them.
-    2. Add ```https://github.com/mww012/hass-infinitive``` as a custom repository.  See [here](https://hacs.xyz/docs/faq/custom_repositories) for instructions.
+    2. Add ```https://github.com/gogades/hass-infinitive``` as a custom repository.  See [here](https://hacs.xyz/docs/faq/custom_repositories) for instructions.
     </details>
     <details>
     <summary>Manual Installation</summary>
 
-    1. Download the [hass-infinitive repository](https://github.com/mww012/hass-infinitive)
+    1. Download the [hass-infinitive repository](https://github.com/gogades/hass-infinitive)
     2. Copy the ```custom_components/infinitive``` folder into your HA custom_components folder.
     </details>
 
