@@ -10,8 +10,6 @@ HA Infinitive Component - https://github.com/mww012/ha_customcomponents
 import voluptuous as vol
 import logging
 
-from voluptuous.schema_builder import _iterate_mapping_candidates
-
 import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (
     CONF_HOST,
@@ -270,7 +268,7 @@ class InfinitiveDevice(ClimateEntity):
         if nm in self._status:
             return self._status[nm]
         return None
-    
+
     def update(self):
         """Update current status from infinitive device."""
         _LOGGER.debug("Updating Infinitive status")
