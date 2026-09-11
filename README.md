@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 
-# LOOKING FOR A NEW MAINTAINER - I no longer have a Bryant/Carrier HVAC unit so I don't use and cannot test this integration any longer. It's really not a lot of work (look at the commit) log, but it's an important integration for the folks who need it.  Consider volunteering.
+# LOOKING FOR A NEW MAINTAINER - I no longer have a Bryant/Carrier HVAC unit so I don't use and cannot test this integration any longer. It's really not a lot of work (look at the commit log), but it's an important integration for the folks who need it.  Consider volunteering.
 
 **THIS README IS A WIP!  Please let me know if parts of these instructions no longer work.**
 
