@@ -2,6 +2,9 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
+
+# LOOKING FOR A NEW MAINTAINER - I no longer have a Bryant/Carrier HVAC unit so I don't use and cannot test this integration any longer. It's really not a lot of work (look at the commit) log, but it's an important integration for the folks who need it.  Consider volunteering.
+
 **THIS README IS A WIP!  Please let me know if parts of these instructions no longer work.**
 
 This integration started when I purchased a new home. It's got a Bryant (Carrier) HVAC unit.  Sure enough, I bought a house with one of the 5% of units that isn't compatible with Nest thermostats.  I started my research and found the Infinitive project.  I wanted to dig deeper into python so a Home Assistant integration seemed like the perfect opportunity.  Once you're done with these instructions you should have a thermostat in HA that controls your Bryant/Carrier HVAC unit.
@@ -10,9 +13,9 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
 
 1. Buy a Raspberry Pi - I'm running mine on a Pi Zero with no issues.
 [Here's the Pi Zero I purchased](https://www.amazon.com/gp/product/B072N3X39J/) and it has everything we need.  As of mid-2022 supplies seem to be low so you may have to search elsewhere for one.
-2. Buy a RS-485 USB adapter 11 for the Raspberry Pi - 
+2. Buy a RS-485 USB adapter 11 for the Raspberry Pi -
 [Here's the RS-485 USB adapter I purchased](https://www.amazon.com/gp/product/B076WVFXN8/) but any RS-485 FTDI adapter should do.
-3. Buy some wire - Search for ```18/2 thermostat wire```.  It's cheap and solid core.  You need enough to reach from your HVAC unit system board to the location of your RS-485 adapter.  
+3. Buy some wire - Search for ```18/2 thermostat wire```.  It's cheap and solid core.  You need enough to reach from your HVAC unit system board to the location of your RS-485 adapter.
   *Note: Some users have seen communication reliability issues with stranded core wire so solid core is preferred.  Not sure why but this is what we've observed.*
 4. Flash the latest version of ```Raspberry Pi OS Lite``` to your SD card - [Here's](https://www.raspberrypi.com/software/) an all-in-one installer for Raspberry Pi OS.
 5. Setup your Raspberry Pi OS install to have a fixed/static IP on your network - [Here's](https://raspberrypi-guide.github.io/networking/set-up-static-ip-address) a quick tutorial on setting a static IP.
@@ -23,13 +26,13 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
      ```
      <details>
      <summary>Commands with "sudo"</summary>
- 
+
      ```
      sudo apt install git wget
      ```
      </details>
    - For Go we want to download the latest version and install it manually (not using apt).  You can find the latest Go package on the [Go Website](https://go.dev/dl/).  If the latest version is newer please adjust the wget download link below.  For official Go installation instructions see [here](https://go.dev/doc/install).
-  
+
      *Note: Latest version as of this writing is 1.19. Debian repos currently have 1.11 and that version does not work for what we need.*
      ```
      wget https://go.dev/dl/go1.19.linux-amd64.tar.gz
@@ -50,7 +53,7 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
 
     <br>
 7. Place this file at /etc/systemd/system/infinitive.service:
-  
+
     Please update the ExecStart line to reflect your Go binary install location.  Mine was ```/root/go/bin/infintive``` but yours may be different.
 
     ```
@@ -86,7 +89,7 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
 9.  Run ```systemctl status infinitive``` to ensure that the service is running.
 10. If all went well you should be able to browse to **http://[rasbperry_pi_IP]:8080** and be presented with the Infinitive web interface.  It won't have data until we connect everything up so let's do that.
 11. Using the thermostat wire, connect one end to the RS-485 adapter as shown below:
-  
+
     *Note: Don't connect to ports C and D on the HVAC system board.  Those are for power, not data, and you'll end up frying your RS-485 adapter.*
 
     - T/R+ (Green wire) connects to the A port on the HVAC system board.
