@@ -5,5 +5,5 @@
   "requirements": ["pyinfinitive==0.0.5"],
   "dependencies": [],
   "codeowners": ["@gogades","@mww012","@tjdavisbz"],
-  "version": "v0.0.13"
+  "version": "v0.0.14"
 }
